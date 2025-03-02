@@ -130,7 +130,6 @@ const OrderPage: NextPage<Props> = ({ order }) => {
 // - Only if you need to pre-render a page whose data must be fetched at request time
 
 export const getServerSideProps: GetServerSideProps = async ({
-  req,
   query,
 }) => {
   const { id = "" } = query;

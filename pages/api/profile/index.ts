@@ -4,7 +4,23 @@ import { User } from "../../../models";
 import { db } from "../../../database";
 import { getSession } from "next-auth/react";
 
-type Data = { message: string } | any;
+type Data = { message: string } | UserProfile;
+
+interface UserProfile {
+  _id: string;
+  name: string;
+  surname: string;
+  email: string;
+  password?: string;
+  image?: string;
+  gender?: string;
+  telephone?: string;
+  dateOfBirth?: string;
+  active: boolean;
+  role: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export default function handler(
   req: NextApiRequest,
@@ -27,6 +43,7 @@ export default function handler(
 const getProfile = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { _id } = req.query as { _id: string };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = await getSession({ req });
   if (!session) {
     return res
@@ -44,13 +61,18 @@ const getProfile = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   if (!profile)
     return res.status(400).json({ message: "No existe usuario por ese id" });
 
-  return res.status(200).json(profile);
+  const transformedProfile = {
+    ...profile,
+    dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toString() : undefined,
+  };
+  return res.status(200).json(transformedProfile);
 };
 
 const putProfile = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { _id, name, surname, email, gender, dateOfBirth, telephone } =
     req.body;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = await getSession({ req });
   if (!session) {
     return res

@@ -20,7 +20,6 @@ import {
 } from "@mui/icons-material";
 
 import { ShopLayout, CartList, OrderSummary } from "../../components";
-import { dbOrders } from "../../database";
 import { IOrder } from "../../interfaces";
 import { tesloApi } from "../../api";
 
@@ -55,6 +54,7 @@ const OrderPage: NextPage<Props> = ({ order }) => {
         transactionId: details.id,
         orderId: order._id,
       });
+      console.log(data);
 
       router.reload();
     } catch (error) {
@@ -207,6 +207,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   query,
 }) => {
   const { id = "" } = query;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = await getSession({ req });
 
   if (!session) {

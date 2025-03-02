@@ -5,7 +5,6 @@ import { Typography, Grid, Chip, Link } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { ShopLayout } from '../../components';
-import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces';
 
 const columns: GridColDef[] = [
@@ -81,6 +80,7 @@ const HistoryPage: NextPage<Props> = ({ orders }) => {
 // - Only if you need to pre-render a page whose data must be fetched at request time
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = await getSession({ req });
 
   if (!session) {

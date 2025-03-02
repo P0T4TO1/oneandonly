@@ -23,7 +23,6 @@ import {
   ItemCounter,
 } from '../../components';
 
-import { dbProducts } from '../../database';
 import { IProduct, ICartProduct, ISize } from '../../interfaces';
 
 interface Props {
@@ -185,7 +184,7 @@ const ProductPage: NextPage<Props> = ({ product }) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async (ctx) => {
+export const getStaticPaths: GetStaticPaths = async () => {
   // const productSlugs = await dbProducts.getAllProductSlugs();
 
   // return {

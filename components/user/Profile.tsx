@@ -99,7 +99,7 @@ export const Profile: FC<Props> = ({ userData }) => {
 
   const onUpdateProfile = async (data: FormData) => {
     const { name, surname, email } = data;
-    let birthDate = dayjs(dateValue).format("YYYY-MM-DD");
+    const birthDate = dayjs(dateValue).format("YYYY-MM-DD");
     console.log(birthDate);
     const userUpdated = {
       ...userProfile,

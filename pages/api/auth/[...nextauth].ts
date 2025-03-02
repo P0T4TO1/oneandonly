@@ -1,24 +1,23 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook";
-import Credentials from "next-auth/providers/credentials";
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 
-import { dbUsers } from "../../../database";
+import { dbUsers } from '../../../database';
 
 export default NextAuth({
   providers: [
     Credentials({
-      name: "Custom Login",
+      name: 'Custom Login',
       credentials: {
         email: {
-          label: "Correo:",
-          type: "email",
-          placeholder: "correo@google.com",
+          label: 'Correo:',
+          type: 'email',
+          placeholder: 'correo@google.com',
         },
         password: {
-          label: "Contraseña:",
-          type: "password",
-          placeholder: "Contraseña",
+          label: 'Contraseña:',
+          type: 'password',
+          placeholder: 'Contraseña',
         },
       },
       async authorize(credentials) {
@@ -40,13 +39,13 @@ export default NextAuth({
   ],
 
   pages: {
-    signIn: "/auth/login",
-    newUser: "/auth/register",
+    signIn: '/auth/login',
+    newUser: '/auth/register',
   },
 
   session: {
     maxAge: 259200,
-    strategy: "jwt",
+    strategy: 'jwt',
     updateAge: 8640,
   },
 
@@ -55,24 +54,24 @@ export default NextAuth({
       if (account) {
         token.accessToken = account.access_token;
         switch (account.type) {
-          case "oauth":
+          case 'oauth':
             token.user = await dbUsers.oAUthToDbUser(
-              user?.email || "",
-              user?.name || "",
-              user?.image || ""
+              user?.email || '',
+              user?.name || '',
+              user?.image || ''
             );
             break;
-          case "credentials":
+          case 'credentials':
             token.user = user;
             break;
         }
       }
       return token;
     },
-    async session({ session, token, user }) {
-      // @ts-ignore
+    async session({ session, token }) {
+      // @ts-expect-error property accessToken does not exist on type 'Session' but it does
       session.accessToken = token.accessToken;
-      session.user = token.user as any;
+      session.user = token.user as typeof session.user;
       return session;
     },
   },

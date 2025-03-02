@@ -39,6 +39,7 @@ const LoginPage = () => {
   } = useForm<FormData>();
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  // eslint-disable-next-line
   const [providers, setProviders] = useState<any>({});
 
   useEffect(() => {
@@ -141,6 +142,10 @@ const LoginPage = () => {
               justifyContent="end"
             >
               <Divider sx={{ width: '100%', mb: 2 }} />
+              {/* 
+              eslint-disable-next-line
+              @typescript-eslint/no-explicit-any
+              */}
               {Object.values(providers).map((provider: any) => {
                 if (provider.id === 'credentials')
                   return <div key="credentials"></div>;

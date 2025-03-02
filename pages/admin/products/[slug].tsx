@@ -217,6 +217,7 @@ const ProductAdminPage: FC<Props> = ({ product }) => {
       }
     } catch (error) {
       setIsSaving(false);
+      console.log({ error });
     }
   };
 

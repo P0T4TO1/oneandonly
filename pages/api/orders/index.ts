@@ -24,7 +24,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const { orderItems, total } = req.body as IOrder;
 
   // Vericar que tengamos un usuario
-  const session: any = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions) as { user: { email: string } };
 
   if (!session) {
     return res
@@ -72,11 +72,12 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     await db.disconnect();
 
     return res.status(201).json(newOrder);
-  } catch (error: any) {
+  } catch (error) {
     await db.disconnect();
     console.log(error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(400).json({
-      message: error.message || 'Revise logs del servidor',
+      message: errorMessage || 'Revise logs del servidor',
     });
   }
 };

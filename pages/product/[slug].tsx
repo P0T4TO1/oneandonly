@@ -1,5 +1,5 @@
 import { useState, useContext, SyntheticEvent, ComponentType } from 'react';
-import { NextPage, GetStaticPaths, GetStaticProps } from 'next';
+import { NextPage, GetServerSideProps } from 'next';
 
 import {
   Box,
@@ -184,38 +184,17 @@ const ProductPage: NextPage<Props> = ({ product }) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  // const productSlugs = await dbProducts.getAllProductSlugs();
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const hostName = process.env.HOST_NAME;
+  if (!hostName) {
+    throw new Error('HOST_NAME environment variable is not defined');
+  }
 
-  // return {
-  //   paths: productSlugs.map(({ slug }) => ({
-  //     params: {
-  //       slug,
-  //     },
-  //   })),
-  //   fallback: "blocking",
-  // };
-  const productSlugs = await fetch(
-    `${process.env.HOST_NAME}api/products/slugs`
-  );
-  const slugs = await productSlugs.json();
-  return {
-    paths: slugs.map(({ slug }: { slug: string }) => ({
-      params: {
-        slug,
-      },
-    })),
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug = '' } = params as { slug: string };
-  // const product = await dbProducts.getProductBySlug(slug);
-  const response = await fetch(`${process.env.HOST_NAME}api/products/${slug}`);
-  const product = await response.json();
+  const response = await fetch(`${hostName}api/products/${slug}`);
 
-  if (!product) {
+  if (!response.ok) {
+    console.error(`Failed to fetch product data: ${response.statusText}`);
     return {
       redirect: {
         destination: '/',
@@ -224,12 +203,38 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     };
   }
 
-  return {
-    props: {
-      product,
-    },
-    revalidate: 60 * 60 * 24,
-  };
+  const responseText = await response.text();
+
+  try {
+    const product = JSON.parse(responseText);
+
+    if (!product) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+
+    return {
+      props: {
+        product,
+      },
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Failed to parse product data: ${error.message}`);
+    } else {
+      console.error('Failed to parse product data:', error);
+    }
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
 };
 
 export default ProductPage;

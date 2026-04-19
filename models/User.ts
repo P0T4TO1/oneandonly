@@ -22,7 +22,6 @@ const userSchema = new Schema(
       required: false,
       length: 10,
       unique: true,
-      default: '',
     },
     dateOfBirth: { type: String, required: false, default: '' },
     active: { type: Boolean, required: true, default: true },

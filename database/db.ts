@@ -1,44 +1,43 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-/**
- * 0 = disconnected
- * 1 = connected
- * 2 = connecting
- * 3 = disconnecting
- */
-const mongoConnection = {
-  isConnected: 0,
+const MONGO_URL = process.env.MONGO_URL!;
+
+if (!MONGO_URL) {
+  throw new Error("MONGO_URL no definida");
+}
+
+declare global {
+  var mongooseCache: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
+global.mongooseCache ||= {
+  conn: null,
+  promise: null,
 };
 
 export const connect = async () => {
-  if (mongoConnection.isConnected) {
-    console.log('Ya estabamos conectados');
-    return;
+  if (global.mongooseCache.conn) {
+    return global.mongooseCache.conn;
   }
 
-  if (mongoose.connections.length > 0) {
-    mongoConnection.isConnected = mongoose.connections[0].readyState;
-
-    if (mongoConnection.isConnected === 1) {
-      console.log('Usando conexión anterior');
-      return;
-    }
-
-    await mongoose.disconnect();
+  if (!global.mongooseCache.promise) {
+    global.mongooseCache.promise = mongoose.connect(MONGO_URL, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+    });
   }
 
-  await mongoose.connect(process.env.MONGO_URL || '');
-  mongoConnection.isConnected = 1;
-  console.log('Conectado a MongoDB:', process.env.MONGO_URL);
+  global.mongooseCache.conn = await global.mongooseCache.promise;
+
+  console.log("Mongo conectado");
+
+  return global.mongooseCache.conn;
 };
 
 export const disconnect = async () => {
-  if (process.env.NODE_ENV === 'development') return;
-
-  if (mongoConnection.isConnected === 0) return;
-
-  await mongoose.disconnect();
-  mongoConnection.isConnected = 0;
-
-  console.log('Desconectado de MongoDB');
+  // no hacer nada en Vercel/serverless
+  return;
 };
